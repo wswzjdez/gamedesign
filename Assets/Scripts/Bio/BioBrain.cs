@@ -1,10 +1,12 @@
-// S3 — 生物大脑：优先 Unity Sentis 端侧推理；未启用/无模型时回退启发式（保证可运行）
+// S4 — 生物大脑：默认使用训练好的神经网络（BioModel.Forward，纯 C# 前向传播，2022.3/Unity6 通用）；
+// 若工程切到 Unity 6 + 安装 Sentis 2.0 并定义 STARISLE_SENTIS，则改用真·端侧推理（ONNX 模型）。
 //
-// 兼容性说明：Unity Sentis 2.0 仅支持 Unity 6。当前工程在 Unity 2022.3 下编译，
-// 因此默认关闭真实推理、走启发式（游戏照常运行）。
-// 将来若切回 Unity 6 + 安装 Sentis 2.0：在
-//   Edit > Project Settings > Player > Scripting Define Symbols
-// 加入 `STARISLE_SENTIS` 即可启用端侧 AI 推理（无需改代码）。
+// 决策契约：输入(4)[atmosphere, hydro, biodiversity, energy] -> 输出(4)[seekResource, seekFood, roam, reproduce]
+// 模型由 tools/train_bio_model.py 训练并导出到 BioModel.cs（weights 自动生成）。
+//
+// 升级路径（Unity 6 + Sentis 2.0）：
+//   在 Edit > Project Settings > Player > Scripting Define Symbols 加入 `STARISLE_SENTIS`，
+//   并把导出的 .onnx 拖到 BioBrain 的 modelAsset 字段即可启用端侧 AI 推理（无需改代码）。
 #if STARISLE_SENTIS
 using Unity.Sentis;
 #endif
@@ -63,16 +65,9 @@ namespace StarIsle.Bio
                 }
             }
 #endif
-            return Heuristic(atmosphere, hydro, biodiversity, energy);
-        }
-
-        // 启发式：缺能量→找资源；能量高且生态好→繁殖；否则漫游
-        private float[] Heuristic(float a, float h, float b, float e)
-        {
-            float seek = 1f - e;
-            float reproduce = e * Mathf.Clamp01((a + h) * 0.5f);
-            float roam = 1f - Mathf.Max(seek, reproduce);
-            return new float[] { seek, seek, roam, reproduce };
+            // 默认走嵌入式的训练神经网络（BioModel.Forward），2022.3 / Unity6 通用。
+            // BioModel 由 tools/train_bio_model.py 训练导出，纯 C# 前向传播，零外部依赖。
+            return BioModel.Forward(atmosphere, hydro, biodiversity, energy);
         }
 
         private void OnDestroy()
