@@ -12,6 +12,9 @@ namespace StarIsle.Characters
         public float turnLerp = 12f;
         public float boundRadius = 8.5f;   // 限制在岛面范围内（地面 20x20，留边）
 
+        [Header("过场控制")]
+        public bool InputLocked = false;    // 开场/过场期间为 true：不读输入、不移动
+
         private ColonistAvatar _avatar;
         private Camera _cam;
         private ThirdPersonCamera _tpc;
@@ -46,6 +49,14 @@ namespace StarIsle.Characters
 
         void Update()
         {
+            // 过场期间锁定：不读输入、不移动，仅保留待机呼吸动画
+            if (InputLocked)
+            {
+                _avatar.SetLocomotion(0f, Time.deltaTime);
+                _prevPos = transform.position;
+                return;
+            }
+
             EnsureLinks();
             HandlePointer();
 

@@ -7,11 +7,12 @@ using StarIsle.Config;
 using StarIsle.Persistence;
 using StarIsle.UI;
 using StarIsle.Characters;
+using StarIsle.Cinematics;
 using System.Collections.Generic;
 
 namespace StarIsle.Core
 {
-    public enum GameState { Boot, MainMenu, Playing, Paused }
+    public enum GameState { Boot, Intro, MainMenu, Playing, Paused }
 
     public class GameManager : MonoBehaviour
     {
@@ -30,6 +31,8 @@ namespace StarIsle.Core
         private SaveSystem _save; private Hud _hud;
         private TechTree _tech; private Codex _codex;
         private SimConfig _cfg;
+        private Transform _playerRoot;      // 玩家根物体（过场要接管）
+        private ThirdPersonCamera _tpcRef;  // 跟随相机（过场期间禁用）
 
         private void Awake()
         {
@@ -59,9 +62,29 @@ namespace StarIsle.Core
             // S4 — 玩家：第三人称 Low Poly 科幻殖民者（程序化生成，打开即玩）
             var player = new GameObject("Player (Colonist)");
             player.AddComponent<PlayerController>();
+            _playerRoot = player.transform;
             var mainCam = Camera.main;
-            if (mainCam != null) mainCam.gameObject.AddComponent<ThirdPersonCamera>();
+            if (mainCam != null)
+            {
+                _tpcRef = mainCam.gameObject.AddComponent<ThirdPersonCamera>();
+                _tpcRef.enabled = false;   // 过场期间由 IntroSequence 接管镜头
+            }
 
+            State = GameState.Intro;
+        }
+
+        // 开场动画：所有 Awake 完成后启动，避免与子系统初始化顺序耦合
+        private void Start()
+        {
+            _hud.SetVisible(false);
+            var introGo = new GameObject("IntroSequence");   // 独立物体，避免与 HUD 的 UIDocument 冲突
+            var intro = introGo.AddComponent<IntroSequence>();
+            intro.Play(_playerRoot, _tpcRef, OnIntroDone);
+        }
+
+        private void OnIntroDone()
+        {
+            _hud.SetVisible(true);
             State = GameState.Playing;
         }
 

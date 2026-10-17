@@ -53,6 +53,13 @@ namespace StarIsle.UI
             root.Add(_saveBtn); root.Add(_loadBtn);
         }
 
+        /// <summary>开场动画期间隐藏 HUD，结束后再显示。</summary>
+        public void SetVisible(bool v)
+        {
+            if (_doc == null) return;
+            _doc.rootVisualElement.style.display = v ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         public void RefreshTechButtons()
         {
             _techRow.Clear();

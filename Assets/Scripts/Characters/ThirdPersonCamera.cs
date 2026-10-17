@@ -47,5 +47,12 @@ namespace StarIsle.Characters
         {
             distance = Mathf.Clamp(distance - d, minDist, maxDist);
         }
+
+        /// <summary>从指定世界坐标起步、平滑过渡到跟随位（过场结束后交还操控用，避免镜头跳变）。</summary>
+        public void BeginBlendFrom(Vector3 worldPos)
+        {
+            _inited = true;
+            _curPos = worldPos;
+        }
     }
 }
