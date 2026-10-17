@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using StarIsle.Config;
 using StarIsle.Simulation;
+using StarIsle.Bio;
 
 namespace StarIsle.Systems
 {
