@@ -113,3 +113,11 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Web / build output
+/dist/
+/webgl-build/
