@@ -6,6 +6,7 @@ using StarIsle.Bio;
 using StarIsle.Config;
 using StarIsle.Persistence;
 using StarIsle.UI;
+using StarIsle.Characters;
 using System.Collections.Generic;
 
 namespace StarIsle.Core
@@ -54,6 +55,12 @@ namespace StarIsle.Core
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.transform.localScale = Vector3.one * 2f;
             ground.name = "IslandGround";
+
+            // S4 — 玩家：第三人称 Low Poly 科幻殖民者（程序化生成，打开即玩）
+            var player = new GameObject("Player (Colonist)");
+            player.AddComponent<PlayerController>();
+            var mainCam = Camera.main;
+            if (mainCam != null) mainCam.gameObject.AddComponent<ThirdPersonCamera>();
 
             State = GameState.Playing;
         }
