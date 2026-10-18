@@ -125,3 +125,4 @@ Thumbs.db
 # Web / build output
 /dist/
 /webgl-build/
+/*.ps1
